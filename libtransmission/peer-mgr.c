@@ -1950,7 +1950,8 @@ static void ensureAtomExists(tr_swarm* s, tr_address const* addr, tr_port const 
         
         //TODO: test
         // set the probability of being a seeder to 100/100 if the peer comes from the tracker
-        //atomSetSeedProbability(a, seedProbability);
+        atomSetSeedProbability(a, seedProbability);
+        /*
         if (a->from == TR_PEER_FROM_TRACKER)
         {
             atomSetSeedProbability(a, 100);
@@ -1959,7 +1960,7 @@ static void ensureAtomExists(tr_swarm* s, tr_address const* addr, tr_port const 
         {
             atomSetSeedProbability(a, seedProbability);
         }
-
+        */
         tr_ptrArrayInsertSorted(&s->pool, a, compareAtomsByAddress);
 
         tordbg(s, "got a new atom: %s", tr_atomAddrStr(a));
