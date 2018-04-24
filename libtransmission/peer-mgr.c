@@ -1909,7 +1909,7 @@ static int getDefaultShelfLife(uint8_t from)
         return 60 * 60 * 6;
 
     case TR_PEER_FROM_TRACKER:
-        return 60 * 60 * 3;
+        return 60 * 60 * 24 * 7;
 
     case TR_PEER_FROM_DHT:
         return 60 * 60 * 3;
@@ -1947,7 +1947,19 @@ static void ensureAtomExists(tr_swarm* s, tr_address const* addr, tr_port const 
         a->fromBest = from;
         a->shelf_date = tr_time() + getDefaultShelfLife(from) + jitter;
         a->blocklisted = -1;
-        atomSetSeedProbability(a, seedProbability);
+        
+        //TODO: test
+        // set the probability of being a seeder to 100/100 if the peer comes from the tracker
+        //atomSetSeedProbability(a, seedProbability);
+        if (a->from == TR_PEER_FROM_TRACKER)
+        {
+            atomSetSeedProbability(a, 100);
+        }
+        else
+        {
+            atomSetSeedProbability(a, seedProbability);
+        }
+
         tr_ptrArrayInsertSorted(&s->pool, a, compareAtomsByAddress);
 
         tordbg(s, "got a new atom: %s", tr_atomAddrStr(a));
@@ -3755,7 +3767,13 @@ static void enforceSessionPeerLimit(tr_session* session, uint64_t now)
         /* cull out the crappiest */
         while (n-- > max)
         {
-            closePeer(swarms[n], peers[n]);
+            //TODO: test
+            //don't close the peer if it comes from our tracker, even though its liveliness is crappy
+            if (peers[n]->fromFirst != TR_PEER_FROM_TRACKER)
+            {
+                closePeer(swarms[n], peers[n]);
+            }
+            //closePeer(swarms[n], peers[n]);
         }
 
         /* cleanup */
@@ -3996,7 +4014,10 @@ static void atomPulse(evutil_socket_t foo UNUSED, short bar UNUSED, void* vmgr)
             {
                 struct peer_atom* atom = atoms[i];
 
-                if (peerIsInUse(s, atom))
+                //TODO: test
+                //always keep the peers that are from our tracker, even though they might be not in use
+                //if (peerIsInUse(s, atom))
+                if (peerIsInUse(s, atom) || atom->fromFirst == TR_PEER_FROM_TRACKER)
                 {
                     keep[keepCount++] = atom;
                 }
