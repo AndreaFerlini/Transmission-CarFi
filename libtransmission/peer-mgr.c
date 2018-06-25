@@ -41,7 +41,7 @@
 enum
 {
     /* how frequently to cull old atoms */
-    ATOM_PERIOD_MSEC = (60 * 1000),
+    ATOM_PERIOD_MSEC = (60 * 1000),    // BACK TO THE ORIGIN
     /* how frequently to change which peers are choked */
     RECHOKE_PERIOD_MSEC = (10 * 1000),
     /* an optimistically unchoked peer is immune from rechoking
@@ -54,9 +54,9 @@ enum
     /* how frequently to decide which peers live and die */
     RECONNECT_PERIOD_MSEC = 500,
     /* when many peers are available, keep idle ones this long */
-    MIN_UPLOAD_IDLE_SECS = (60),
+    MIN_UPLOAD_IDLE_SECS = (60),       // BACK TO THE ORIGIN
     /* when few peers are available, keep idle ones this long */
-    MAX_UPLOAD_IDLE_SECS = (60 * 5),
+    MAX_UPLOAD_IDLE_SECS = (60 * 5),   // BACK TO THE ORIGIN
     /* max number of peers to ask for per second overall.
      * this throttle is to avoid overloading the router */
     MAX_CONNECTIONS_PER_SECOND = 12,
@@ -3408,6 +3408,8 @@ static void rechokePulse(evutil_socket_t foo UNUSED, short bar UNUSED, void* vmg
 
 static bool shouldPeerBeClosed(tr_swarm const* s, tr_peer const* peer, int peerCount, time_t const now)
 {
+    //return false;
+
     tr_torrent const* tor = s->tor;
     struct peer_atom const* atom = peer->atom;
 
@@ -3770,7 +3772,7 @@ static void enforceSessionPeerLimit(tr_session* session, uint64_t now)
         {
             //TODO: test
             //don't close the peer if it comes from our tracker, even though its liveliness is crappy
-            if (peers[n]->fromFirst != TR_PEER_FROM_TRACKER)
+            if (peers[n]->atom->fromFirst != TR_PEER_FROM_TRACKER)
             {
                 closePeer(swarms[n], peers[n]);
             }
